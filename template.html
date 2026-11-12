@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>For You</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@500;700&family=Caveat:wght@500;600&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --pink-deep:#7b4fa8;   /* main accent (purple) */
+    --pink:#9b72cf;
+    --pink-soft:#e0d2f2;
+    --pink-pale:#f4eefb;   /* page background */
+    --cream:#fbf8ff;
+    --ink:#4a3560;
+    --ink-soft:#7d6694;
+    --paper:#fffdfb;
+    --shadow:rgba(120,80,170,.25);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    font-family:'Quicksand',system-ui,sans-serif;
+    color:var(--ink);
+    background-color:var(--pink-pale);
+    background-image:
+      linear-gradient(rgba(155,114,207,.18) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(155,114,207,.18) 1px, transparent 1px),
+      linear-gradient(rgba(155,114,207,.10) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(155,114,207,.10) 1px, transparent 1px);
+    background-size:64px 64px,64px 64px,16px 16px,16px 16px;
+    min-height:100vh;
+    overflow-x:hidden;
+  }
+
+  /* floating hearts */
+  #hearts{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+  .heart{position:absolute;font-size:18px;opacity:.5;animation:float linear infinite}
+  @keyframes float{
+    from{transform:translateY(110vh) rotate(0deg)}
+    to{transform:translateY(-15vh) rotate(360deg)}
+  }
+
+  .page{
+    display:none;
+    position:relative;z-index:1;
+    min-height:100vh;
+    padding:28px 16px 110px;
+    animation:fadein .6s ease both;
+  }
+  .page.active{display:block}
+  @keyframes fadein{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+
+  .wrap{max-width:860px;margin:0 auto}
+  h1,h2{font-family:'Dancing Script',cursive;font-weight:700;margin:0 0 6px;color:var(--pink-deep);line-height:1.1;text-wrap:balance}
+  h1{font-size:clamp(2.2rem,8vw,3.4rem)}
+  h2{font-size:clamp(1.8rem,6vw,2.6rem)}
+  .sub{font-size:.95rem;color:var(--ink-soft);margin:0 0 26px}
+
+  /* ---------- page 1 : envelope ---------- */
+  .cover{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:calc(100vh - 140px);text-align:center}
+  .envelope{
+    position:relative;width:min(340px,86vw);aspect-ratio:3/2;margin:18px 0 10px;
+    cursor:pointer;transition:transform .35s ease;
+    filter:drop-shadow(0 16px 28px var(--shadow));
+  }
+  .envelope:hover{transform:translateY(-8px) scale(1.02)}
+  .env-body{position:absolute;inset:0;background:linear-gradient(160deg,#fdfaff,#e6dbf7);border-radius:12px;border:1px solid #d6c4ee}
+  .env-flap{
+    position:absolute;top:0;left:0;right:0;height:62%;
+    background:linear-gradient(170deg,#f6effd,#dfd0f5);
+    clip-path:polygon(0 0,100% 0,50% 100%);
+    border-radius:12px 12px 0 0;
+  }
+  .env-lines{position:absolute;left:0;right:0;bottom:0;height:62%;
+    background:linear-gradient(55deg,transparent 49.4%,#cdb9e8 49.6%,transparent 50.2%),
+               linear-gradient(-55deg,transparent 49.4%,#cdb9e8 49.6%,transparent 50.2%);
+    border-radius:0 0 12px 12px}
+  .seal{
+    position:absolute;left:50%;top:52%;transform:translate(-50%,-50%);
+    width:62px;height:62px;border-radius:50%;
+    background:radial-gradient(circle at 35% 30%,#9a5fd0,#4e2a7a);
+    color:#f3e9ff;display:grid;place-items:center;font-size:26px;
+    box-shadow:0 6px 14px rgba(70,30,130,.35);
+  }
+  .tap{font-family:'Caveat',cursive;font-size:1.25rem;color:var(--ink-soft);margin-top:14px}
+
+  /* ---------- page 2 : letter ---------- */
+  .letter{
+    background:var(--paper);
+    border:1px solid #ded0f0;border-radius:14px;
+    padding:30px 26px 40px;
+    box-shadow:0 18px 40px var(--shadow);
+    background-image:repeating-linear-gradient(to bottom,transparent,transparent 33px,#ece2f8 33px,#ece2f8 34px);
+    background-position:0 62px;
+  }
+  .letter .salut{font-family:'Dancing Script',cursive;font-size:2rem;color:var(--pink-deep);margin:0 0 18px}
+  .letter p{font-family:'Caveat',cursive;font-size:1.35rem;line-height:34px;margin:0 0 34px;white-space:pre-wrap}
+  .letter .sign{font-family:'Dancing Script',cursive;font-size:1.7rem;text-align:right;color:var(--pink-deep);margin-top:10px}
+
+  /* ---------- page 3 : moments ---------- */
+  .grid{columns:2;column-gap:14px}
+  @media(min-width:700px){.grid{columns:3;column-gap:18px}}
+  .polaroid{
+    break-inside:avoid;background:#fff;padding:9px 9px 34px;margin:0 0 16px;
+    border-radius:4px;box-shadow:0 8px 18px var(--shadow);
+    transform:rotate(var(--r,0deg));transition:transform .25s ease;cursor:pointer;
+  }
+  .polaroid:hover{transform:rotate(0) scale(1.04);z-index:3;position:relative}
+  .polaroid img{width:100%;display:block;border-radius:2px}
+  .polaroid span{display:block;text-align:center;font-family:'Caveat',cursive;font-size:1.05rem;color:var(--ink-soft);margin-top:8px}
+
+  /* lightbox */
+  #lb{position:fixed;inset:0;background:rgba(45,25,70,.88);display:none;place-items:center;z-index:50;padding:20px}
+  #lb.open{display:grid}
+  #lb img{max-width:min(94vw,780px);max-height:86vh;border-radius:10px;box-shadow:0 20px 50px rgba(0,0,0,.5)}
+  #lb .x{position:absolute;top:16px;right:20px;font-size:34px;color:#fff;cursor:pointer;line-height:1}
+
+  /* ---------- page 4 : flowers ---------- */
+  .flowers{text-align:center}
+  .bouquet{width:min(380px,84vw);border-radius:16px;box-shadow:0 18px 40px var(--shadow);border:6px solid #fff}
+  .note{font-family:'Caveat',cursive;font-size:1.3rem;color:var(--ink-soft);margin-top:18px}
+
+  /* ---------- page 5 : song ---------- */
+  .song-card{
+    background:linear-gradient(160deg,#fbf7ff,#e9ddf8);
+    border:1px solid #d9c9ef;border-radius:18px;padding:26px;
+    box-shadow:0 18px 40px var(--shadow);text-align:center;
+  }
+  /* record sleeve + vinyl sliding out of it */
+  .record{display:flex;align-items:center;justify-content:center;margin:2px 0 20px}
+  .sleeve{
+    position:relative;width:min(360px,66%);aspect-ratio:16/9;z-index:2;
+    border-radius:12px;overflow:hidden;background:#2a1b3d;
+    box-shadow:0 14px 28px rgba(60,30,110,.35);
+  }
+  .art{
+    position:absolute;inset:0;z-index:3;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;gap:6px;cursor:pointer;
+    background:linear-gradient(135deg,#7a4bb5,#2d1b4e 72%);color:#f3e9ff;
+    padding:10px;text-align:center;text-decoration:none;
+  }
+  .art .ctitle{font-family:'Dancing Script',cursive;font-size:1.45rem;line-height:1.05}
+  .art .cartist{font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;opacity:.75}
+  .art .pcirc{
+    margin-top:4px;width:40px;height:40px;border-radius:50%;font-size:15px;
+    background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.45);
+    display:grid;place-items:center;padding-left:3px;
+  }
+  .art:hover .pcirc{background:rgba(255,255,255,.3)}
+  .art .eq{display:none;gap:3px;height:14px;align-items:flex-end}
+  .art.playing .eq{display:flex}
+  .art .eq i{width:3px;background:#f3e9ff;border-radius:2px;animation:eq .9s ease-in-out infinite}
+  .art .eq i:nth-child(2){animation-delay:.15s}
+  .art .eq i:nth-child(3){animation-delay:.3s}
+  .art .eq i:nth-child(4){animation-delay:.45s}
+  @keyframes eq{0%,100%{height:4px}50%{height:14px}}
+  .sleeve iframe{position:absolute;inset:0;width:100%;height:100%;border:0;z-index:1}
+  .disc-slot{width:min(165px,32%);margin-left:-7%;z-index:1;transition:transform .6s ease}
+  .disc-slot.out{transform:translateX(13%)}
+  .vinyl{
+    width:100%;aspect-ratio:1;border-radius:50%;
+    background:
+      radial-gradient(circle,#f4eefb 0 5%,#7b4fa8 5.5% 23%,transparent 23.5%),
+      repeating-radial-gradient(circle,#2a2a2a 0 3px,#1b1b1b 3px 6px);
+    box-shadow:0 10px 22px rgba(0,0,0,.35);
+    animation:spin 9s linear infinite;animation-play-state:paused;
+  }
+  .vinyl.playing{animation-play-state:running}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .song-title{font-family:'Dancing Script',cursive;font-size:1.8rem;color:var(--pink-deep)}
+  .song-artist{color:var(--ink-soft);margin-bottom:14px}
+  .lyrics{font-family:'Caveat',cursive;font-size:1.2rem;line-height:1.6;white-space:pre-wrap;margin:18px auto 0;max-width:44ch;text-align:left}
+  .yt-link{font-size:.85rem;color:var(--pink-deep);text-decoration:none;border-bottom:1px dotted var(--pink-deep)}
+
+  /* ---------- nav ---------- */
+  .nav{
+    position:fixed;left:0;right:0;bottom:0;z-index:20;
+    display:flex;align-items:center;justify-content:center;gap:10px;
+    padding:12px;background:linear-gradient(to top,rgba(244,238,251,.98),rgba(244,238,251,.55));
+    backdrop-filter:blur(6px);
+  }
+  .btn{
+    font-family:'Quicksand',sans-serif;font-weight:700;font-size:.95rem;
+    border:none;border-radius:999px;padding:11px 22px;cursor:pointer;
+    background:var(--pink-deep);color:#fff;box-shadow:0 6px 14px var(--shadow);
+    transition:transform .15s ease,opacity .15s;
+  }
+  .btn:hover{transform:translateY(-2px)}
+  .btn.ghost{background:#fff;color:var(--pink-deep);border:1px solid var(--pink-soft)}
+  .dots{display:flex;gap:7px;margin:0 6px}
+  .dot{width:9px;height:9px;border-radius:50%;background:var(--pink-soft);cursor:pointer}
+  .dot.on{background:var(--pink-deep);transform:scale(1.25)}
+</style>
+</head>
+<body>
+<div id="hearts"></div>
+
+<!-- 1. cover -->
+<section class="page active" id="pg1">
+  <div class="wrap cover">
+    <h1>For you</h1>
+    <p class="sub">a little something I made with my whole heart</p>
+    <div class="envelope" onclick="go(1)">
+      <div class="env-body"></div>
+      <div class="env-lines"></div>
+      <div class="env-flap"></div>
+      <div class="seal">♥</div>
+    </div>
+    <p class="tap">click the envelope ✦</p>
+  </div>
+</section>
+
+<!-- 2. letter -->
+<section class="page" id="pg2">
+  <div class="wrap">
+    <h2>My letter to you</h2>
+    <p class="sub">read it slowly, okay? 💌</p>
+    <div class="letter">
+      <div class="salut">hello,</div>
+      <p>it's been a long time na nag message ako sayo ng ganto. I see a lot of progress sa buhay mo and proud na proud ako sayo sa mga bagay na ginagawa mo nakikita ko naman sobrang saya mo sa tao napalapit sayo.
+
+Go i-grow mo lang sarili mo sa mga bagay o tao magiging benefit para sayo, kung may tao na nag mamahal sayo. I prayed to god na maging masaya kayo sa isa't isa and mag grow kayo as person sa isa't isa and also take those opportunity yung pag-aaral mo. Sana patuloy mo padin inaabot pangarap mo maging nursing.
+
+Ako? kamusta na ako? okay lang ako actually.... Ayoko muna mag mahal. Let me fix myself first muna, so that i can offer sa magiging gf ko...
+
+May mga moment ako namimiss satin dalawa dati pero hanggang tingin nalang ako. Sa puso ko gusto kita mayakap pero sabi ng isip ko wag nalang kasi dahil dun sa mga nangyari satin before.</p>
+      <div class="sign">miss na miss kita 💜</div>
+    </div>
+  </div>
+</section>
+
+<!-- 3. moments -->
+<section class="page" id="pg3">
+  <div class="wrap">
+    <h2>Our moments</h2>
+    <p class="sub">tap any photo to see it bigger</p>
+    <div class="grid" id="grid"></div>
+  </div>
+</section>
+
+<!-- 4. flowers -->
+<section class="page" id="pg4">
+  <div class="wrap flowers">
+    <h2>Flowers for you</h2>
+    <p class="sub">kasi deserve mo lahat ng maganda</p>
+    <img class="bouquet" src="{{FLOWERS}}" alt="bouquet">
+    <p class="note">ito yung bulaklak na dapat ibibigay ko sayo,<br>sana andyan padin yan 💐</p>
+  </div>
+</section>
+
+<!-- 5. song -->
+<section class="page" id="pg5">
+  <div class="wrap">
+    <h2>This song remind me of you</h2>
+    <p class="sub">pindutin ang cover para tumugtog ♪</p>
+    <div class="song-card">
+      <div class="record">
+        <div class="sleeve">
+          <div class="art" id="albumArt" onclick="toggleSong()"><!--COVER-->
+            <div class="ctitle">Mahal Magmahal</div>
+            <div class="cartist">Esremborak</div>
+            <div class="pcirc" id="pcirc">▶</div>
+            <div class="eq"><i></i><i></i><i></i><i></i></div>
+          </div><!--/COVER-->
+          <div id="ytplayer"></div>
+        </div>
+        <div class="disc-slot" id="discSlot"><div class="vinyl" id="vinyl"></div></div>
+      </div>
+      <div class="song-title">Mahal Magmahal</div>
+      <div class="song-artist">Esremborak</div>
+      <p id="songHint" style="font-size:.82rem;color:var(--ink-soft);margin:10px 0 0"></p>
+      <p style="margin:8px 0 0"><a id="ytLink" class="yt-link" href="https://youtu.be/8hJJ2l8UaxQ" target="_blank" rel="noopener">buksan sa YouTube ↗</a></p>
+      <p class="lyrics">I used to think “Mahal Magmahal” was only about loving a person. But maybe it’s also about loving your dreams.
+
+Kasi ang pangarap, mahal din abutin. Hindi dahil sa presyo nito, kundi dahil sa lahat ng hihingin nito sa’yo.
+
+And maybe that’s why sometimes you can’t fully love someone yet. Not because you don’t want to, but because you’re still paying the price of becoming the person you’re trying to be. ♥</p>
+    </div>
+    <div style="text-align:center;margin-top:28px">
+      <h2 style="font-size:2.4rem">imissyou 💜</h2>
+    </div>
+  </div>
+</section>
+
+<div id="lb" onclick="closeLb()"><span class="x">&times;</span><img id="lbimg" alt=""></div>
+
+<nav class="nav">
+  <button class="btn ghost" onclick="go(cur-1)">‹ Back</button>
+  <div class="dots" id="dots"></div>
+  <button class="btn" onclick="go(cur+1)">Next ›</button>
+</nav>
+
+<script>
+const PHOTOS = {{PHOTOS}};
+const CAPTIONS = {{CAPTIONS}};
+const SONG = "{{SONG}}";
+
+/* photo wall */
+const grid = document.getElementById('grid');
+PHOTOS.forEach((src,i)=>{
+  const d = document.createElement('div');
+  d.className='polaroid';
+  d.style.setProperty('--r', (((i*37)%7)-3)+'deg');
+  d.innerHTML = '<img loading="lazy" src="'+src+'" alt=""><span>'+(CAPTIONS[i]||'us ♥')+'</span>';
+  d.onclick = ()=>openLb(src);
+  grid.appendChild(d);
+});
+
+/* lightbox */
+function openLb(src){document.getElementById('lbimg').src=src;document.getElementById('lb').classList.add('open')}
+function closeLb(){document.getElementById('lb').classList.remove('open')}
+
+/* pages */
+const pages=[...document.querySelectorAll('.page')];
+let cur=0;
+const dots=document.getElementById('dots');
+pages.forEach((_,i)=>{
+  const s=document.createElement('span');s.className='dot';s.onclick=()=>go(i);dots.appendChild(s);
+});
+function go(i){
+  cur=Math.max(0,Math.min(pages.length-1,i));
+  pages.forEach((p,n)=>p.classList.toggle('active',n===cur));
+  [...dots.children].forEach((d,n)=>d.classList.toggle('on',n===cur));
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+go(0);
+
+/* song */
+const YT_ID = "8hJJ2l8UaxQ";          /* YouTube video id ng kanta */
+const YT_LINK = "https://youtu.be/" + YT_ID;
+let ytFailed = false;                 /* ilang browser (hal. binuksan mula sa file)
+                                         ay hindi pinapayagang mag-play dito */
+const hint = t=>document.getElementById('songHint').textContent=t;
+function spin(on){
+  document.getElementById('vinyl').classList.toggle('playing',on);
+  document.getElementById('discSlot').classList.toggle('out',on);
+  document.getElementById('albumArt').classList.toggle('playing',on);
+  document.getElementById('pcirc').textContent = on ? '❚❚' : '▶';
+}
+
+let ytPlayer=null, ytLoading=false, audio=null;
+
+function toggleSong(){
+  if(ytFailed){ window.open(YT_LINK,'_blank','noopener'); return; }
+  if(ytPlayer && ytPlayer.getPlayerState){
+    const st=ytPlayer.getPlayerState();           /* 1 = playing, 3 = buffering */
+    if(st===1||st===3){ ytPlayer.pauseVideo(); } else { ytPlayer.playVideo(); }
+    return;
+  }
+  if(audio){ audio.paused ? audio.play() : audio.pause(); return; }
+  if(ytLoading) return;
+  ytLoading=true; hint('Loading…');
+  loadYT(()=>{
+    ytPlayer=new YT.Player('ytplayer',{
+      videoId:YT_ID,
+      playerVars:{playsinline:1,rel:0,controls:0,disablekb:1,fs:0,iv_load_policy:3,
+                  modestbranding:1,loop:1,playlist:YT_ID},
+      events:{
+        onReady:e=>{ hint(''); e.target.playVideo(); },
+        onStateChange:e=>spin(e.data===1||e.data===3),
+        onError:()=>{ ytFailed=true; spin(false);
+          hint('Hindi pwedeng tumugtog dito — pindutin ulit ang cover para buksan sa YouTube.'); }
+      }
+    });
+  }, fallbackToMp3);
+}
+
+function loadYT(ok, fail){
+  if(window.YT && YT.Player) return ok();
+  window.onYouTubeIframeAPIReady=ok;
+  const s=document.createElement('script');
+  s.src='https://www.youtube.com/iframe_api';
+  s.onerror=fail;
+  document.head.appendChild(s);
+  setTimeout(()=>{ if(!(window.YT&&YT.Player)) fail(); }, 6000);
+}
+
+/* kapag walang internet: gagamitin ang song.mp3 kung meron sa tabi ng file */
+function fallbackToMp3(){
+  if(audio) return;
+  audio=new Audio(SONG); audio.loop=true;
+  audio.onplay=()=>{spin(true); hint('');};
+  audio.onpause=()=>spin(false);
+  audio.onerror=()=>{ audio=null; ytLoading=false; spin(false);
+    hint('Kailangan ng internet para sa kanta — o maglagay ng song.mp3 sa tabi ng file na ito.'); };
+  audio.play().catch(()=>{});
+}
+
+/* hearts */
+const hc=document.getElementById('hearts');
+for(let i=0;i<18;i++){
+  const h=document.createElement('div');
+  h.className='heart';h.textContent=['♥','✿','♡','✦'][i%4];
+  h.style.left=Math.random()*100+'%';
+  h.style.fontSize=(12+Math.random()*16)+'px';
+  h.style.animationDuration=(12+Math.random()*16)+'s';
+  h.style.animationDelay=(-Math.random()*20)+'s';
+  hc.appendChild(h);
+}
+</script>
+</body>
+</html>

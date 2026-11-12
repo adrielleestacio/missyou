@@ -1,0 +1,47 @@
+LOVE LETTER WEBSITE — paano gamitin
+====================================
+
+ANO ANG NASA LOOB
+- index.html  →  ito ang website mismo. ISANG FILE lang, kasama na ang lahat ng
+                 14 na litrato sa loob (naka-embed na). Pwede mo na agad i-double
+                 click para buksan, o i-send sa kanya.
+- img/        →  kopya ng mga litrato (naka-resize na). Hindi kailangan ng
+                 index.html, pang-backup lang kung gusto mong palitan ang layout.
+- template.html → version na walang litrato (para kung gusto mong i-edit ulit).
+
+5 PAHINA NG SITE
+1. For you      – envelope, i-click para magbukas
+2. My letter    – ang sulat
+3. Our moments  – photo wall (13 litrato, i-tap para lumaki)
+4. Flowers      – ang bouquet
+5. Our song     – vinyl + YouTube player (Mahal Magmahal) + ending
+
+PAANO PALITAN ANG SULAT
+Buksan ang index.html sa Notepad (right click → Open with → Notepad),
+hanapin ang "To my love," — nasa ibaba niyan ang buong sulat. Palitan mo lang
+ang text, huwag galawin ang mga <p> at </p>. I-save, tapos i-refresh.
+
+ANG KANTA
+Naka-set na ang "Mahal Magmahal" ng Esremborak (galing YouTube). Pindutin lang
+ang Play sa "Our song" page — lalabas ang video at tutugtog.
+KAILANGAN NG INTERNET para dito.
+
+Gusto mong palitan ng ibang kanta?
+  1. Kunin ang video id sa YouTube link. Halimbawa sa
+     https://youtu.be/8hJJ2l8UaxQ  →  ang id ay 8hJJ2l8UaxQ
+  2. Buksan ang index.html sa Notepad, Ctrl+H (Replace), hanapin ang
+     8hJJ2l8UaxQ at palitan LAHAT ng bagong id. (2 lugar ito: ang player at
+     ang "buksan sa YouTube" link.)
+  3. Palitan din ang "Mahal Magmahal" at "Esremborak" ng bagong title/artist.
+
+Gusto mong gumana kahit WALANG internet?
+  Maglagay ng MP3 na naka-rename na "song.mp3" sa tabi ng index.html.
+  Gagamitin niya ito automatic kapag hindi ma-load ang YouTube.
+
+PAANO I-SEND SA KANYA
+- Pinakamadali: i-send mo lang ang index.html (2 MB) sa Messenger/Gdrive,
+  tapos bubuksan niya sa phone o laptop.
+- Gusto mo ng LINK na pwedeng i-click? Sabihin mo lang sa akin at gagawan kita.
+
+TIP: kung may internet, mas maganda ang fonts (galing sa Google Fonts).
+Kahit walang internet, gagana pa rin — iba lang konti ang itsura ng sulat.
